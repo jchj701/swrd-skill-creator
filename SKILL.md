@@ -1,6 +1,6 @@
 ---
 name: swrd-skill-creator
-version: 0.1.2
+version: 0.1.3
 description: |
   SWRD 自进化工程级 Skill 创造器。一个元 Skill（Meta-Skill），用于创建、评估、自动优化其他工程化 Skill，
   并让被创建的 Skill 具备自进化能力（棘轮机制 + 全日志 + wiki 经验积累）。
@@ -125,7 +125,20 @@ eval_strategy:
 
 工作流定义：workflows/state-machine.yaml
 
+每个阶段必须明确标注：
+- **输入**：进入该阶段前必须准备好的数据
+- **输出**：该阶段完成后必须产出的结果
+- **退出条件**：什么情况下可以离开该阶段
+- **fallback**：该阶段失败时的处理路径
+
+---
+
 ## 阶段一：意图抽取
+
+**输入**：用户原始需求描述
+**输出**：结构化的意图抽取结果（含用户目标、任务边界、输入输出、复用价值判断）
+**退出条件**：意图完整且具备复用价值，或确认不具备复用价值
+**fallback**：意图不完整时循环追问，最多 5 轮；超时后提示用户简化需求
 
 分析用户真实需求，判断是否适合创建 Skill：
 
@@ -147,6 +160,11 @@ eval_strategy:
 ---
 
 ## 阶段二：能力抽象
+
+**输入**：意图抽取结果（用户目标、任务边界）
+**输出**：模块划分方案（模块列表、接口定义、依赖关系）
+**退出条件**：模块划分通过自检，或用户确认调整后的方案
+**fallback**：意图冲突时回退到阶段一重新确认；抽象失败时停止
 
 将用户需求转换为可复用的能力模块：
 
@@ -174,6 +192,11 @@ eval_strategy:
 
 ## 阶段三：Eval 定义
 
+**输入**：模块划分方案（模块列表、接口定义）
+**输出**：4 个 Eval JSON 文件（trigger_cases.json、success_cases.json、failure_cases.json、benchmarks.json）
+**退出条件**：4 个 Eval 文件全部生成且通过格式校验
+**fallback**：无法定义有意义的 Eval 时回退到阶段二重新抽象；连续 2 次回退后停止
+
 测试优先，先定义 Eval 再生成 Skill：
 
 1. **生成 Trigger Eval**（trigger_cases.json）：
@@ -197,11 +220,10 @@ eval_strategy:
 
 ## 阶段四：Skill 生成
 
-生成标准化的 Skill 文件：
-
-1. **检查模板文件是否存在**：
-   - 检查 `assets/skill-template/` 下所有模板文件是否存在
-   - 如果模板文件缺失：
+**输入**：Eval 文件 + 模块划分方案 + 模板文件
+**输出**：完整的 Skill 目录结构（含 SKILL.md、skill.yaml、workflows/、evals/、telemetry/、wiki/）
+**退出条件**：所有必需文件创建完成且通过验证
+**fallback**：模板缺失时使用内嵌默认模板；git 初始化失败时提示用户手动操作；文件创建失败时重试 1 次后停止
      - 尝试从 `assets/skill-template/` 中同类模板推断结构
      - 如果无法推断，使用硬编码的默认模板（内置于本 SKILL.md 中）
      - 记录模板缺失情况到 telemetry，但不中断流程
@@ -273,7 +295,10 @@ eval_strategy:
 
 ## 阶段五：模块化审查
 
-使用独立子 Agent 审查模块化质量：
+**输入**：生成的 Skill 目录结构（所有文件）
+**输出**：审查结果（通过/不通过/降级通过 + 各规则检查详情）
+**退出条件**：≥2 子 Agent 通过，或降级模式下主 Agent 自检通过
+**fallback**：子 Agent 超时时降级为主 Agent 自检；审查不通过时回退到阶段四重新拆分
 
 1. **spawn 3 个子 Agent**，每个独立审查：
    - M1：每个模块不超过 3 个文件
@@ -300,7 +325,10 @@ eval_strategy:
 
 ## 阶段六：触发优化
 
-优化 description 和触发条件：
+**输入**：生成的 SKILL.md（含初始 description 和 trigger）
+**输出**：优化后的 SKILL.md（description 更精准、trigger 覆盖更全）
+**退出条件**：description 和 trigger 优化完成
+**fallback**：优化失败时使用初始版本，不阻塞流程
 
 1. **优化 description**：
    - 包含用户意图
@@ -321,6 +349,11 @@ eval_strategy:
 
 ## 阶段七：运行时优化
 
+**输入**：优化后的 SKILL.md + skill.yaml
+**输出**：通过运行时检查的配置（token 预算、懒加载、渐进式披露）
+**退出条件**：三项检查全部通过
+**fallback**：检查不通过时自动修正配置项
+
 确保支持渐进式披露和按需加载：
 
 1. **检查 token 预算设置**：soft_limit / hard_limit 合理
@@ -331,7 +364,10 @@ eval_strategy:
 
 ## 阶段八：跨平台审查
 
-检查 Runtime 绑定，确保跨平台兼容：
+**输入**：SKILL.md + README.md（如有）
+**输出**：审查结果（红灯列表 + 修复建议）
+**退出条件**：无红灯，或所有红灯已修复
+**fallback**：发现红灯时回退到阶段六修复；无法修复时标记 warning 并记录到 telemetry
 
 1. **红灯扫描**（grep 检查）：
    ```bash
@@ -354,6 +390,11 @@ eval_strategy:
 
 ## 阶段九：用户确认
 
+**输入**：完整的 Skill 目录 + 模块化审查结果 + 跨平台审查结果
+**输出**：用户决策（满意不优化 / 满意并优化 / 不满意需修改）
+**退出条件**：用户做出明确选择
+**fallback**：用户不满意时回退到阶段四修改；用户不回应时默认进入完成
+
 展示生成的 Skill 给用户确认：
 
 1. **展示**：
@@ -374,6 +415,11 @@ eval_strategy:
 ---
 
 ## 阶段十：自进化循环
+
+**输入**：已生成的 Skill + 用户确认进入优化 + 联动工程信息
+**输出**：优化后的 Skill（分数提升）+ 优化报告 + 更新后的 telemetry
+**退出条件**：收敛（连续 5 轮不提升）或用户确认完成
+**fallback**：联动工程不可用时使用临时目录；子 Agent 评分超时时降级
 
 自动优化 Skill 质量（hill-climbing + 棘轮机制）：
 
@@ -458,6 +504,11 @@ for round = 1 to MAX_ROUNDS:
 ---
 
 ## 阶段十一：完成
+
+**输入**：优化结果数据（轮次、分数变化、keep/revert 记录）
+**输出**：优化报告 + 更新后的 CHANGELOG.md + 更新后的 telemetry
+**退出条件**：报告生成完成且用户确认
+**fallback**：报告生成失败时输出简化版报告
 
 生成汇总报告：
 
