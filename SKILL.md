@@ -1,6 +1,6 @@
 ---
 name: swrd-skill-creator
-version: 0.1.3
+version: 0.1.6
 description: |
   SWRD 自进化工程级 Skill 创造器。一个元 Skill（Meta-Skill），用于创建、评估、自动优化其他工程化 Skill，
   并让被创建的 Skill 具备自进化能力（棘轮机制 + 全日志 + wiki 经验积累）。
