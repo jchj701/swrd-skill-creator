@@ -1,0 +1,97 @@
+name: <skill-name>
+version: 0.1.0
+description: |
+  <description>
+
+category:
+  - <category>
+
+author: <author>
+
+trigger:
+  semantic:
+    - <trigger-word-1>
+    - <trigger-word-2>
+
+  should_trigger_when:
+    - <should-trigger-situation-1>
+
+  should_not_trigger_when:
+    - <should-not-trigger-situation-1>
+
+inputs:
+  - <input-1>
+
+outputs:
+  - <output-1>
+
+dependencies:
+  - <dependency-1>
+
+token_budget:
+  soft_limit: 12000
+  hard_limit: 24000
+
+latency_budget:
+  target_ms: 8000
+
+risk_level: low
+
+observability:
+  enabled: true
+  collect:
+    - trigger_accuracy
+    - completion_rate
+    - token_usage
+    - latency
+
+eval_strategy:
+  methodology:
+    - trigger-eval
+    - execution-eval
+    - regression-eval
+
+  success_criteria:
+    trigger_accuracy: ">= 90%"
+    completion_rate: ">= 85%"
+
+workflow:
+  steps:
+    - name: step_1
+      description: <step-1-description>
+      required: true
+    - name: step_2
+      description: <step-2-description>
+      required: true
+
+  state_machine:
+    states:
+      - idle
+      - processing
+      - success
+      - failure
+    transitions:
+      - from: idle
+        to: processing
+        trigger: request_received
+      - from: processing
+        to: success
+        condition: processing_complete
+      - from: processing
+        to: failure
+        condition: processing_failed
+      - from: success
+        to: idle
+        trigger: cleanup
+      - from: failure
+        to: idle
+        trigger: cleanup
+
+artifacts:
+  - SKILL.md
+  - skill.yaml
+
+directories:
+  - scripts/
+  - references/
+  - assets/

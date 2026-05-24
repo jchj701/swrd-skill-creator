@@ -1,0 +1,34 @@
+{
+  "skill_name": "<skill-name>",
+  "eval_type": "failure",
+  "description": "验证 <skill-name> 在异常情况下的处理能力",
+  "test_cases": [
+    {
+      "id": "failure-001",
+      "description": "<failure-scenario-1>",
+      "input": "<failure-input-1>",
+      "expected_behavior": {
+        "action": "<expected-action>",
+        "should_stop": true,
+        "reason": "<reason>"
+      },
+      "reason": "<test-reason>"
+    },
+    {
+      "id": "failure-002",
+      "description": "<failure-scenario-2>",
+      "input": "<failure-input-2>",
+      "expected_behavior": {
+        "action": "<expected-action>",
+        "should_stop": false,
+        "reason": "<reason>"
+      },
+      "reason": "<test-reason>"
+    }
+  ],
+  "success_criteria": {
+    "error_handling": "优雅处理异常",
+    "stop_condition": "正确停止",
+    "information_collection": "正确询问"
+  }
+}

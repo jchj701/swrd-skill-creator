@@ -1,0 +1,35 @@
+{
+  "skill_name": "<skill-name>",
+  "eval_type": "trigger",
+  "description": "验证 <skill-name> 的触发条件",
+  "should_trigger": [
+    {
+      "id": "trigger-001",
+      "description": "<trigger-scenario-1>",
+      "input": "<trigger-input-1>",
+      "expected": "trigger",
+      "category": "<category>"
+    },
+    {
+      "id": "trigger-002",
+      "description": "<trigger-scenario-2>",
+      "input": "<trigger-input-2>",
+      "expected": "trigger",
+      "category": "<category>"
+    }
+  ],
+  "should_not_trigger": [
+    {
+      "id": "no-trigger-001",
+      "description": "<no-trigger-scenario-1>",
+      "input": "<no-trigger-input-1>",
+      "expected": "no_trigger",
+      "reason": "<reason>"
+    }
+  ],
+  "success_criteria": {
+    "trigger_accuracy": ">= 90%",
+    "false_positive_rate": "<= 5%",
+    "false_negative_rate": "<= 10%"
+  }
+}

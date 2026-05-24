@@ -1,0 +1,119 @@
+skill_name: <skill-name>
+version: 0.1.0
+description: <skill-name> 的状态机定义
+
+states:
+  idle:
+    description: 初始状态，等待用户请求
+    on_enter:
+      - 初始化上下文
+    on_exit:
+      - 清理临时数据
+    transitions:
+      - to: processing
+        condition: request_received
+        action: initialize
+
+  processing:
+    description: 处理中状态
+    on_enter:
+      - 开始处理
+    on_exit:
+      - 保存处理结果
+    transitions:
+      - to: success
+        condition: processing_complete
+        action: complete
+      - to: failure
+        condition: processing_failed
+        action: handle_error
+
+  success:
+    description: 成功完成状态
+    on_enter:
+      - 生成报告
+      - 清理资源
+    on_exit:
+      - 重置为 idle
+    transitions:
+      - to: idle
+        condition: always
+        action: reset
+
+  failure:
+    description: 失败状态
+    on_enter:
+      - 记录错误
+      - 生成错误报告
+    on_exit:
+      - 清理资源
+    transitions:
+      - to: idle
+        condition: always
+        action: reset
+
+conditions:
+  request_received:
+    description: 收到用户请求
+    checks:
+      - input_valid
+      - context_ready
+
+  processing_complete:
+    description: 处理完成
+    checks:
+      - output_valid
+      - no_errors
+
+  processing_failed:
+    description: 处理失败
+    checks:
+      - error_occurred
+      - or timeout
+
+actions:
+  initialize:
+    description: 初始化处理
+    steps:
+      - 验证输入
+      - 加载上下文
+      - 准备资源
+
+  complete:
+    description: 完成处理
+    steps:
+      - 验证输出
+      - 格式化结果
+      - 生成报告
+
+  handle_error:
+    description: 处理错误
+    steps:
+      - 记录错误
+      - 生成错误报告
+      - 清理资源
+
+  reset:
+    description: 重置状态
+    steps:
+      - 清理上下文
+      - 重置变量
+
+error_handling:
+  processing:
+    - error: timeout
+      action: handle_error
+      message: "处理超时"
+    - error: invalid_input
+      action: handle_error
+      message: "输入无效"
+
+telemetry:
+  collect:
+    - state_transitions
+    - action_executions
+    - error_occurrences
+    - latency_per_state
+  report:
+    - on_success: true
+    - on_failure: true

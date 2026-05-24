@@ -1,0 +1,129 @@
+---
+name: "<skill-name>"
+version: "0.1.0"
+description: |
+  <description>
+  
+  <trigger_description>
+
+category:
+  - <category>
+
+author: <author>
+
+trigger:
+  semantic:
+    - <trigger-word-1>
+    - <trigger-word-2>
+    - <trigger-word-3>
+
+  should_trigger_when:
+    - <should-trigger-situation-1>
+    - <should-trigger-situation-2>
+
+  should_not_trigger_when:
+    - <should-not-trigger-situation-1>
+    - <should-not-trigger-situation-2>
+
+inputs:
+  - <input-1>
+  - <input-2>
+
+outputs:
+  - <output-1>
+  - <output-2>
+
+dependencies:
+  - <dependency-1>
+
+token_budget:
+  soft_limit: 12000
+  hard_limit: 24000
+
+latency_budget:
+  target_ms: 8000
+
+risk_level: low
+
+observability:
+  enabled: true
+  collect:
+    - trigger_accuracy
+    - completion_rate
+    - token_usage
+    - latency
+
+eval_strategy:
+  methodology:
+    - trigger-eval
+    - execution-eval
+    - regression-eval
+
+  success_criteria:
+    trigger_accuracy: ">= 90%"
+    completion_rate: ">= 85%"
+
+---
+
+# <Skill-Title>
+
+> 版本：0.1.0 | 由 SWRD 自进化工程级 Skill 创造器生成
+
+## 目标
+
+<goal_description>
+
+---
+
+## 核心原则
+
+1. <principle-1>
+2. <principle-2>
+3. <principle-3>
+
+---
+
+## 工作流程
+
+工作流定义：workflows/state-machine.yaml
+
+### Step 1：<step-1-name>
+
+<step-1-description>
+
+1. <action-1>
+2. <action-2>
+3. <action-3>
+
+---
+
+### Step 2：<step-2-name>
+
+<step-2-description>
+
+1. <action-1>
+2. <action-2>
+
+---
+
+## 执行约束
+
+禁止：
+- <forbidden-1>
+- <forbidden-2>
+
+必须：
+- <required-1>
+- <required-2>
+
+---
+
+## 输出格式
+
+<output_format_description>
+
+---
+
+## 成功标准
+
+<success_criteria_description>

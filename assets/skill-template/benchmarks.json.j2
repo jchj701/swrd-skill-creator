@@ -1,0 +1,54 @@
+{
+  "skill_name": "<skill-name>",
+  "eval_type": "benchmark",
+  "description": "<skill-name> 性能基准测试",
+  "performance_metrics": {
+    "token_usage": {
+      "soft_limit": 12000,
+      "hard_limit": 24000,
+      "target": "< 10000",
+      "unit": "tokens"
+    },
+    "latency": {
+      "target": 8000,
+      "p50": "< 5000",
+      "p95": "< 10000",
+      "p99": "< 15000",
+      "unit": "ms"
+    },
+    "completion_rate": {
+      "target": ">= 85%",
+      "minimum": ">= 80%"
+    }
+  },
+  "quality_metrics": {
+    "trigger_accuracy": {
+      "target": ">= 90%",
+      "minimum": ">= 85%"
+    },
+    "output_completeness": {
+      "target": "100%",
+      "required_files": [
+        "SKILL.md",
+        "skill.yaml",
+        "workflows/state-machine.yaml"
+      ]
+    }
+  },
+  "test_scenarios": [
+    {
+      "id": "bench-001",
+      "description": "简单场景",
+      "complexity": "low",
+      "expected_tokens": "< 5000",
+      "expected_latency": "< 5000"
+    },
+    {
+      "id": "bench-002",
+      "description": "复杂场景",
+      "complexity": "high",
+      "expected_tokens": "< 20000",
+      "expected_latency": "< 15000"
+    }
+  ]
+}

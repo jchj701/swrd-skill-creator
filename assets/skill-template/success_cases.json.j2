@@ -1,0 +1,28 @@
+{
+  "skill_name": "<skill-name>",
+  "eval_type": "success",
+  "description": "验证 <skill-name> 在正常情况下的正确输出",
+  "test_cases": [
+    {
+      "id": "success-001",
+      "description": "<test-scenario-1>",
+      "input": {
+        "task_description": "<task-description>",
+        "expected_outputs": ["<output-1>", "<output-2>"],
+        "constraints": ["<constraint-1>"],
+        "runtime_environment": "<runtime>"
+      },
+      "expected_workflow": ["<step-1>", "<step-2>"],
+      "expected_outputs": {
+        "<output-1>": "<output-description-1>",
+        "<output-2>": "<output-description-2>"
+      },
+      "success_criteria": ["<criteria-1>", "<criteria-2>"]
+    }
+  ],
+  "success_criteria": {
+    "completion_rate": ">= 85%",
+    "output_quality": "符合规范",
+    "workflow_completeness": "步骤完整"
+  }
+}
