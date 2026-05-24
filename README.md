@@ -460,10 +460,3 @@ swrd-skill-creator/
 - **0.1.1** — 填充 skill-template 模板和辅助脚本
 - **0.1.0** — 初始创建
 
----
-
-<p align="center">
-  <sub>Skill ≠ Prompt. Skill 是能力单元。</sub>
-  <br>
-  <sub>只保留改进，时间就站在你这边。</sub>
-</p>
