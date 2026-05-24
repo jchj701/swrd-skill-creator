@@ -1,0 +1,496 @@
+skill_name: swrd-skill-creator
+version: 0.1.0
+description: SWRD 自进化工程级 Skill 创造器的状态机定义
+
+states:
+  idle:
+    description: 初始状态，等待用户请求
+    on_enter:
+      - 初始化上下文
+      - 加载 SWRD Skill 规范
+    on_exit:
+      - 清理临时数据
+
+  意图抽取:
+    description: 分析用户真实需求，判断是否适合创建 Skill
+    on_enter:
+      - 询问用户目标、任务边界、输入输出
+      - 判断是否具备复用价值
+    on_exit:
+      - 保存意图抽取结果
+    transitions:
+      - to: 能力抽象
+        condition: 意图完整且具备复用价值
+        action: 进入能力抽象
+      - to: idle
+        condition: 不具备复用价值
+        action: 说明原因并停止
+      - to: 意图抽取
+        condition: 意图不完整
+        action: 继续追问
+
+  能力抽象:
+    description: 将用户需求转换为可复用的能力模块
+    on_enter:
+      - 识别逻辑单元，划分模块
+      - 定义模块间接口和依赖
+      - 确保每个模块 ≤ 3 文件、≤ 300 行
+    on_exit:
+      - 保存能力抽象结果
+    transitions:
+      - to: Eval定义
+        condition: 抽象完成且模块划分合理
+        action: 进入 Eval 定义
+      - to: 意图抽取
+        condition: 抽象过程中发现意图冲突
+        action: 回退重新确认意图
+      - to: failure
+        condition: 抽象失败
+        action: 停止
+
+  Eval定义:
+    description: 定义完整的测试用例（测试优先）
+    on_enter:
+      - 生成 Trigger Eval
+      - 生成 Success Eval
+      - 生成 Failure Eval
+      - 生成 Benchmark
+    on_exit:
+      - 保存 Eval 结果
+    transitions:
+      - to: Skill生成
+        condition: Eval 定义完整
+        action: 进入 Skill 生成
+      - to: 能力抽象
+        condition: 无法定义有意义的 Eval
+        action: 回退重新抽象
+      - to: failure
+        condition: Eval 定义失败
+        action: 停止
+
+  Skill生成:
+    description: 生成标准化的 Skill 文件
+    on_enter:
+      - 从模板生成 SKILL.md（版本号 0.1.0）
+      - 生成 skill.yaml
+      - 生成 workflows/state-machine.yaml
+      - 生成 evals/ 目录
+      - 生成 telemetry/ 目录
+      - 初始化 wiki 目录（karpathy-llm-wiki 模板）
+      - 初始化 git 仓库
+    on_exit:
+      - 保存生成结果
+    transitions:
+      - to: 模块化审查
+        condition: 生成完成
+        action: 进入模块化审查
+      - to: failure
+        condition: 生成失败
+        action: 停止
+
+  模块化审查:
+    description: 使用独立子 Agent 审查模块化质量
+    on_enter:
+      - spawn 3 个子 Agent 独立审查
+      - 检查模块拆分是否合理
+      - 检查模块间耦合度
+      - 检查文件大小是否超标
+    on_exit:
+      - 保存审查结果
+    transitions:
+      - to: 触发优化
+        condition: 审查通过（≥2 子 Agent 同意）
+        action: 进入触发优化
+      - to: Skill生成
+        condition: 审查不通过
+        action: 回退重新拆分模块
+      - to: failure
+        condition: 审查异常
+        action: 停止
+
+  触发优化:
+    description: 优化 description 和触发条件
+    on_enter:
+      - 优化 description
+      - 优化 semantic trigger
+      - 优化 should_trigger_when / should_not_trigger_when
+    on_exit:
+      - 保存优化结果
+    transitions:
+      - to: 运行时优化
+        condition: 优化完成
+        action: 进入运行时优化
+      - to: failure
+        condition: 优化失败
+        action: 停止
+
+  运行时优化:
+    description: 确保支持渐进式披露、按需加载
+    on_enter:
+      - 检查 token 预算设置
+      - 检查懒加载机制
+      - 检查渐进式披露
+    on_exit:
+      - 保存优化结果
+    transitions:
+      - to: 跨平台审查
+        condition: 优化完成
+        action: 进入跨平台审查
+      - to: failure
+        condition: 优化失败
+        action: 停止
+
+  跨平台审查:
+    description: 检查 Runtime 绑定，确保跨平台兼容
+    on_enter:
+      - 红灯扫描（grep 检查平台绑定关键词）
+      - 检查安装方式是否通用
+      - 检查路径是否硬编码
+    on_exit:
+      - 保存审查结果
+    transitions:
+      - to: 用户确认
+        condition: 审查通过（无红灯或红灯已修复）
+        action: 展示生成结果给用户
+      - to: 触发优化
+        condition: 发现红灯
+        action: 回退修复 Runtime 绑定
+      - to: failure
+        condition: 审查异常
+        action: 停止
+
+  用户确认:
+    description: 展示生成的 Skill 给用户确认
+    on_enter:
+      - 展示 Skill 目录结构
+      - 展示各模块概览
+      - 展示 Eval 测试用例
+      - 展示 Runtime 审查结果
+      - 询问用户是否进入自进化循环
+    on_exit:
+      - 保存用户确认结果
+    transitions:
+      - to: 自进化循环
+        condition: 用户确认进入优化
+        action: 进入自进化循环
+      - to: 完成
+        condition: 用户满意不优化
+        action: 直接完成
+      - to: Skill生成
+        condition: 用户要求修改
+        action: 回退修改
+
+  自进化循环:
+    description: 自动优化 Skill 质量
+    on_enter:
+      - 初始化测试环境（联动工程快照）
+      - 设计测试 prompt
+      - 运行基线评估
+    on_exit:
+      - 保存优化结果
+    transitions:
+      - to: 基线评估
+        condition: 初始化完成
+        action: 开始基线评估
+
+  基线评估:
+    description: 8 维度评分，建立基线
+    on_enter:
+      - 结构维度评分（子 Agent 独立评分 ×3，取中位数）
+      - 效果维度评分（跑测试 prompt）
+      - 计算加权总分
+      - 记录到 telemetry
+    on_exit:
+      - 保存基线分数
+    transitions:
+      - to: 优化迭代
+        condition: 基线评估完成
+        action: 进入优化迭代
+
+  优化迭代:
+    description: 单轮 hill-climbing 优化
+    on_enter:
+      - 诊断最低分维度
+      - 生成改进方案
+      - 修改目标模块文件
+      - 更新版本号（最小版本 +1）
+      - git commit（含结构化 message）
+      - 子 Agent 独立重新评分 ×3
+      - 判断 keep / revert
+    on_exit:
+      - 保存本轮结果
+    transitions:
+      - to: 人在回路检查点
+        condition: 本轮完成
+        action: 暂停等待用户确认
+      - to: 探索性重写
+        condition: 连续 2 个 Skill 首轮即瓶颈
+        action: 提议探索性重写
+
+  人在回路检查点:
+    description: 每个模块优化后暂停，等待用户确认
+    on_enter:
+      - 展示 git diff
+      - 展示分数变化
+      - 展示测试输出对比
+      - 等待用户确认
+    on_exit:
+      - 保存用户反馈
+    transitions:
+      - to: 优化迭代
+        condition: 用户确认继续且未收敛
+        action: 进入下一轮
+      - to: 完成
+        condition: 用户确认完成或已收敛（连续 5 轮不提升）
+        action: 生成汇总报告
+      - to: 回退
+        condition: 用户说"不好"
+        action: 回退到优化前版本
+
+  探索性重写:
+    description: 突破 hill-climbing 局部最优
+    on_enter:
+      - 询问用户是否同意
+      - git stash 保存当前最优
+      - 从头重写 SKILL.md
+      - 重新评估
+    on_exit:
+      - 保存重写结果
+    transitions:
+      - to: 优化迭代
+        condition: 用户同意且重写版更优
+        action: 采用重写版继续优化
+      - to: 优化迭代
+        condition: 用户同意但重写版更差
+        action: git stash pop 恢复
+      - to: 完成
+        condition: 用户不同意
+        action: 直接完成
+
+  回退:
+    description: 回退到指定版本
+    on_enter:
+      - git revert 到指定 tag
+      - 联动工程全量回退
+      - 记录回退原因到 telemetry
+    on_exit:
+      - 保存回退结果
+    transitions:
+      - to: idle
+        condition: 回退完成
+        action: 重置
+
+  完成:
+    description: 生成汇总报告
+    on_enter:
+      - 生成优化报告
+      - 更新 CHANGELOG.md
+      - 展示最终结果
+      - 清理资源
+    on_exit:
+      - 重置为 idle
+    transitions:
+      - to: idle
+        condition: 完成
+        action: 重置
+
+  failure:
+    description: 失败状态
+    on_enter:
+      - 记录错误
+      - 生成错误报告
+    on_exit:
+      - 清理资源
+    transitions:
+      - to: idle
+        condition: always
+        action: reset
+
+conditions:
+  意图完整且具备复用价值:
+    description: 意图抽取完成且具备复用价值
+    checks:
+      - user_goal_defined
+      - task_boundary_clear
+      - inputs_outputs_defined
+      - has_reuse_value
+      - suitable_for_automation
+
+  不具备复用价值:
+    description: 不具备复用价值
+    checks:
+      - not has_reuse_value
+      - or not suitable_for_automation
+
+  意图不完整:
+    description: 意图抽取未完成
+    checks:
+      - not user_goal_defined
+      - or not task_boundary_clear
+      - or not inputs_outputs_defined
+
+  抽象完成:
+    description: 能力抽象完成
+    checks:
+      - modules_defined
+      - module_interfaces_defined
+      - module_size_valid
+      - no_circular_dependencies
+
+  意图冲突:
+    description: 抽象过程中发现意图冲突
+    checks:
+      - user_conflict_detected
+
+  审查通过:
+    description: 模块化审查通过
+    checks:
+      - at_least_2_agents_approve
+
+  审查不通过:
+    description: 模块化审查不通过
+    checks:
+      - at_least_2_agents_reject
+
+  发现红灯:
+    description: 跨平台审查发现红灯
+    checks:
+      - red_flag_detected
+
+  收敛:
+    description: 连续 5 轮不提升
+    checks:
+      - consecutive_no_improvement >= 5
+
+  连续瓶颈:
+    description: 连续 2 个 Skill 首轮即瓶颈
+    checks:
+      - consecutive_bottleneck >= 2
+
+actions:
+  进入能力抽象:
+    description: 进入能力抽象阶段
+    steps:
+      - 传递意图抽取结果
+      - 初始化能力抽象上下文
+
+  进入 Eval 定义:
+    description: 进入 Eval 定义阶段
+    steps:
+      - 传递能力抽象结果
+      - 初始化 Eval 定义上下文
+
+  进入 Skill 生成:
+    description: 进入 Skill 生成阶段
+    steps:
+      - 传递 Eval 定义结果
+      - 初始化生成上下文
+
+  进入模块化审查:
+    description: 进入模块化审查
+    steps:
+      - 传递生成结果
+      - spawn 3 个子 Agent
+
+  进入触发优化:
+    description: 进入触发优化
+    steps:
+      - 传递审查结果
+      - 初始化优化上下文
+
+  进入运行时优化:
+    description: 进入运行时优化
+    steps:
+      - 传递优化结果
+      - 初始化运行时上下文
+
+  进入跨平台审查:
+    description: 进入跨平台审查
+    steps:
+      - 传递运行时结果
+      - 执行红灯扫描
+
+  进入自进化循环:
+    description: 进入自进化循环
+    steps:
+      - 初始化测试环境
+      - 设计测试 prompt
+      - 运行基线评估
+
+  开始基线评估:
+    description: 开始基线评估
+    steps:
+      - spawn 3 个子 Agent 评分
+      - 跑测试 prompt
+      - 计算加权总分
+
+  进入优化迭代:
+    description: 进入优化迭代
+    steps:
+      - 诊断最低分维度
+      - 生成改进方案
+      - 修改文件
+      - 更新版本号
+      - git commit
+      - 重新评分
+
+  生成汇总报告:
+    description: 生成汇总报告
+    steps:
+      - 统计优化数据
+      - 更新 CHANGELOG.md
+      - 展示最终结果
+
+  重置:
+    description: 重置到初始状态
+    steps:
+      - 清理所有上下文
+      - 重置状态变量
+
+error_handling:
+  意图抽取:
+    - error: user_refuses_to_provide_info
+      action: 说明原因并停止
+      message: "无法获取完整信息，无法创建高质量 Skill"
+    - error: timeout
+      action: 停止
+      message: "意图抽取超时"
+
+  能力抽象:
+    - error: abstraction_too_complex
+      action: 回退重新确认意图
+      message: "能力抽象过于复杂，建议拆分为多个 Skill"
+    - error: invalid_abstraction
+      action: 停止
+      message: "能力抽象无效"
+
+  Skill生成:
+    - error: file_creation_failed
+      action: 停止
+      message: "文件创建失败"
+    - error: invalid_format
+      action: 停止
+      message: "生成格式无效"
+
+  自进化循环:
+    - error: env_cleanup_failed
+      action: 记录错误并继续
+      message: "环境清理失败，尝试继续"
+    - error: sub_agent_timeout
+      action: 重试
+      message: "子 Agent 超时，重试"
+
+telemetry:
+  collect:
+    - state_transitions
+    - action_executions
+    - error_occurrences
+    - latency_per_state
+    - token_usage_per_state
+    - eval_scores
+    - optimization_rounds
+    - keep_revert_ratio
+  report:
+    - on_success: true
+    - on_failure: true
+    - on_state_change: false

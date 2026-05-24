@@ -1,0 +1,70 @@
+{
+  "skill_name": "swrd-skill-creator",
+  "eval_type": "trigger",
+  "description": "验证 SWRD Skill 的触发条件",
+  "should_trigger": [
+    {
+      "id": "trigger-001",
+      "description": "用户要求创建 Skill",
+      "input": "帮我创建一个 PDF 处理的 Skill",
+      "expected": "trigger",
+      "category": "skill-generation"
+    },
+    {
+      "id": "trigger-002",
+      "description": "用户要求优化 Skill",
+      "input": "帮我优化一下这个 Skill，让它更好用",
+      "expected": "trigger",
+      "category": "auto-optimization"
+    },
+    {
+      "id": "trigger-003",
+      "description": "用户要求评估 Skill 质量",
+      "input": "给这个 Skill 打个分，看看质量怎么样",
+      "expected": "trigger",
+      "category": "eval-driven-development"
+    },
+    {
+      "id": "trigger-004",
+      "description": "用户要求自进化",
+      "input": "让这个 Skill 具备自进化能力",
+      "expected": "trigger",
+      "category": "meta-skill"
+    },
+    {
+      "id": "trigger-005",
+      "description": "用户要求工程化 Skill",
+      "input": "创建一个工程化的 Skill，要有状态机和 Eval",
+      "expected": "trigger",
+      "category": "skill-generation"
+    }
+  ],
+  "should_not_trigger": [
+    {
+      "id": "no-trigger-001",
+      "description": "一次性简单提问",
+      "input": "你好",
+      "expected": "no_trigger",
+      "reason": "普通聊天"
+    },
+    {
+      "id": "no-trigger-002",
+      "description": "单次文本生成",
+      "input": "写一个 Python 函数来排序数组",
+      "expected": "no_trigger",
+      "reason": "不具备复用价值"
+    },
+    {
+      "id": "no-trigger-003",
+      "description": "直接询问技术问题",
+      "input": "什么是 PDF？",
+      "expected": "no_trigger",
+      "reason": "知识问答，非 Skill 创建"
+    }
+  ],
+  "success_criteria": {
+    "trigger_accuracy": ">= 90%",
+    "false_positive_rate": "<= 5%",
+    "false_negative_rate": "<= 10%"
+  }
+}

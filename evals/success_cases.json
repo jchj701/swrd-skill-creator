@@ -1,0 +1,64 @@
+{
+  "skill_name": "swrd-skill-creator",
+  "eval_type": "success",
+  "description": "验证 SWRD Skill 在正常情况下的正确输出",
+  "test_cases": [
+    {
+      "id": "success-001",
+      "description": "创建简单的 PDF 处理 Skill",
+      "input": {
+        "task_description": "创建一个 PDF 处理的 Skill，能够提取文本和合并 PDF",
+        "expected_outputs": ["SKILL.md", "skill.yaml", "eval suite", "workflow definition", "telemetry system", "wiki knowledge base"],
+        "constraints": ["符合 SWRD 工程化标准", "测试优先", "跨平台兼容"],
+        "runtime_environment": "通用"
+      },
+      "expected_workflow": [
+        "意图抽取",
+        "能力抽象",
+        "Eval定义",
+        "Skill生成",
+        "模块化审查",
+        "触发优化",
+        "运行时优化",
+        "跨平台审查",
+        "用户确认"
+      ],
+      "expected_outputs": {
+        "SKILL.md": "包含完整的 YAML Frontmatter 和 Markdown Body，版本号 0.1.0",
+        "skill.yaml": "机器可读的配置文件",
+        "eval_suite": "包含 Trigger、Success、Failure Eval 和 Benchmark",
+        "workflow_definition": "包含状态机和工作流图",
+        "telemetry": "包含 YAML 主日志和 JSONL 训练集",
+        "wiki": "包含 karpathy-llm-wiki 模板"
+      },
+      "success_criteria": [
+        "意图抽取：询问用户目标、任务边界、输入输出",
+        "能力抽象：模块划分合理，≤3 文件/模块",
+        "Eval 定义：生成完整的测试用例",
+        "Skill 生成：创建标准化的目录结构和文件",
+        "模块化审查：3 子 Agent 独立审查通过",
+        "跨平台审查：无红灯"
+      ]
+    },
+    {
+      "id": "success-002",
+      "description": "创建带自进化循环的 Skill",
+      "input": {
+        "task_description": "创建一个代码审查 Skill，具备自进化能力",
+        "expected_outputs": ["SKILL.md", "skill.yaml", "eval suite", "telemetry", "wiki"],
+        "constraints": ["需要棘轮机制", "需要全日志"],
+        "runtime_environment": "通用"
+      },
+      "expected_outputs": {
+        "SKILL.md": "包含自进化循环章节",
+        "telemetry": "包含完整的日志系统",
+        "wiki": "包含 karpathy-llm-wiki 知识库"
+      }
+    }
+  ],
+  "success_criteria": {
+    "completion_rate": ">= 85%",
+    "output_quality": "符合 SWRD 工程化标准",
+    "workflow_completeness": "9 个步骤全部执行"
+  }
+}

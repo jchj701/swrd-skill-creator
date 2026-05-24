@@ -1,0 +1,70 @@
+# SWRD Telemetry 日志模板
+# 此文件为模板，被创建的 Skill 会复制此文件并重命名为 <skill-name>-telemetry.yaml
+
+meta:
+  skill_name: "<skill-name>"
+  version: "0.1.0"
+  created_by: "SWRD"
+  created_at: "<创建时间>"
+
+sessions:
+  - session_id: "<session-id>"
+    agent_id: "<agent-id>"
+    agent_version: "<agent-version>"
+    project: "<项目路径>"
+    started_at: "<开始时间>"
+    ended_at: null
+    user_intent: "<用户意图>"
+
+    calls:
+      - call_id: "<call-id>"
+        skill_phase: "<阶段名>"
+        input: "<输入摘要>"
+        output_summary: "<输出摘要>"
+        tokens_used: 0
+        duration_ms: 0
+        eval_result:
+          passed: true
+          score: null
+        artifacts: []
+
+    evals:
+      - eval_id: "<eval-id>"
+        eval_type: "基线评估"
+        evaluator_agents: []
+        scores_raw: []
+        scores_median: {}
+        total_score_median: 0
+        eval_mode: "full_test"
+        test_prompts: []
+
+    optimizations:
+      - round: 0
+        target_module: ""
+        target_dimension: ""
+        change_summary: ""
+        commit_hash: ""
+        version_before: "0.1.0"
+        version_after: "0.1.0"
+        score_before: 0
+        score_after: 0
+        score_delta: 0
+        decision: ""
+        evaluator_agents: []
+        eval_mode: ""
+        env_snapshot: {}
+
+    reverts:
+      - round: 0
+        target_module: ""
+        target_dimension: ""
+        change_summary: ""
+        commit_hash: ""
+        version: ""
+        score_before: 0
+        score_after: 0
+        score_delta: 0
+        reason: ""
+        failure_analysis: ""
+        revert_commit: ""
+        env_restored: false

@@ -1,0 +1,275 @@
+name: swrd-skill-creator
+version: 0.1.0
+description: |
+  SWRD 自进化工程级 Skill 创造器。一个元 Skill（Meta-Skill），用于创建、评估、自动优化其他工程化 Skill，
+  并让被创建的 Skill 具备自进化能力。
+
+category:
+  - meta-skill
+  - skill-generation
+  - auto-optimization
+  - eval-driven-development
+
+author: SWRD
+
+trigger:
+  semantic:
+    - 创建 Skill
+    - 生成技能
+    - 优化 Skill
+    - Skill 评分
+    - 自动优化
+    - Skill 质量检查
+    - 改进技能
+    - 完善 Skill
+    - 更新技能
+    - 自进化
+    - 棘轮进化
+    - 工程化 Skill
+
+  should_trigger_when:
+    - 用户希望创建可复用的工程化 Skill
+    - 用户需要评估现有 Skill 的质量
+    - 用户需要自动优化 Skill
+    - 用户需要 Skill 具备自进化能力
+    - 用户需要为 Skill 建立全日志系统
+    - 用户需要为 Skill 集成经验知识库
+
+  should_not_trigger_when:
+    - 一次性简单提问
+    - 普通聊天
+    - 单次文本生成
+    - 不具备复用价值的需求
+
+inputs:
+  - task_description
+  - expected_outputs
+  - constraints
+  - runtime_environment
+  - dependent_targets
+
+outputs:
+  - structured_skill_package
+  - eval_suite
+  - workflow_definition
+  - trigger_specification
+  - telemetry_system
+  - wiki_knowledge_base
+
+dependencies:
+  - git
+  - karpathy-llm-wiki
+
+token_budget:
+  soft_limit: 24000
+  hard_limit: 48000
+
+latency_budget:
+  target_ms: 30000
+
+risk_level: low
+
+observability:
+  enabled: true
+  collect:
+    - trigger_accuracy
+    - completion_rate
+    - token_usage
+    - latency
+    - eval_scores
+    - optimization_rounds
+    - keep_revert_ratio
+
+eval_strategy:
+  methodology:
+    - trigger-eval
+    - execution-eval
+    - regression-eval
+    - adversarial-eval
+
+  success_criteria:
+    trigger_accuracy: ">= 90%"
+    completion_rate: ">= 85%"
+
+workflow:
+  steps:
+    - name: intent_extraction
+      description: 意图抽取，分析用户真实需求
+      required: true
+    - name: capability_abstraction
+      description: 能力抽象，将需求转换为可复用模块
+      required: true
+    - name: eval_definition
+      description: Eval 定义（强制步骤）
+      required: true
+    - name: skill_generation
+      description: 生成 Skill 文件
+      required: true
+    - name: modularity_review
+      description: 模块化审查（子 Agent 独立审查）
+      required: true
+    - name: trigger_optimization
+      description: 触发优化
+      required: true
+    - name: runtime_optimization
+      description: 运行时优化
+      required: true
+    - name: runtime_compatibility_review
+      description: 跨平台审查
+      required: true
+    - name: user_confirmation
+      description: 用户确认
+      required: true
+    - name: auto_optimization_loop
+      description: 自进化循环（可选）
+      required: false
+    - name: completion
+      description: 完成并生成报告
+      required: true
+
+  state_machine:
+    states:
+      - idle
+      - 意图抽取
+      - 能力抽象
+      - Eval定义
+      - Skill生成
+      - 模块化审查
+      - 触发优化
+      - 运行时优化
+      - 跨平台审查
+      - 用户确认
+      - 自进化循环
+      - 基线评估
+      - 优化迭代
+      - 人在回路检查点
+      - 探索性重写
+      - 回退
+      - 完成
+      - failure
+    transitions:
+      - from: idle
+        to: 意图抽取
+        trigger: request_received
+      - from: 意图抽取
+        to: 能力抽象
+        condition: 意图完整且具备复用价值
+      - from: 意图抽取
+        to: idle
+        condition: 不具备复用价值
+      - from: 意图抽取
+        to: 意图抽取
+        condition: 意图不完整
+      - from: 能力抽象
+        to: Eval定义
+        condition: 抽象完成
+      - from: 能力抽象
+        to: 意图抽取
+        condition: 意图冲突
+      - from: 能力抽象
+        to: failure
+        condition: 抽象失败
+      - from: Eval定义
+        to: Skill生成
+        condition: Eval完整
+      - from: Eval定义
+        to: 能力抽象
+        condition: 无法定义Eval
+      - from: Eval定义
+        to: failure
+        condition: Eval定义失败
+      - from: Skill生成
+        to: 模块化审查
+        condition: 生成完成
+      - from: Skill生成
+        to: failure
+        condition: 生成失败
+      - from: 模块化审查
+        to: 触发优化
+        condition: 审查通过
+      - from: 模块化审查
+        to: Skill生成
+        condition: 审查不通过
+      - from: 模块化审查
+        to: failure
+        condition: 审查异常
+      - from: 触发优化
+        to: 运行时优化
+        condition: 优化完成
+      - from: 触发优化
+        to: failure
+        condition: 优化失败
+      - from: 运行时优化
+        to: 跨平台审查
+        condition: 优化完成
+      - from: 运行时优化
+        to: failure
+        condition: 优化失败
+      - from: 跨平台审查
+        to: 用户确认
+        condition: 审查通过
+      - from: 跨平台审查
+        to: 触发优化
+        condition: 发现红灯
+      - from: 跨平台审查
+        to: failure
+        condition: 审查异常
+      - from: 用户确认
+        to: 自进化循环
+        condition: 用户确认优化
+      - from: 用户确认
+        to: 完成
+        condition: 用户满意不优化
+      - from: 用户确认
+        to: Skill生成
+        condition: 用户要求修改
+      - from: 自进化循环
+        to: 基线评估
+        condition: 初始化完成
+      - from: 基线评估
+        to: 优化迭代
+        condition: 基线完成
+      - from: 优化迭代
+        to: 人在回路检查点
+        condition: 本轮完成
+      - from: 优化迭代
+        to: 探索性重写
+        condition: 连续瓶颈
+      - from: 人在回路检查点
+        to: 优化迭代
+        condition: 继续且未收敛
+      - from: 人在回路检查点
+        to: 完成
+        condition: 收敛或用户确认完成
+      - from: 人在回路检查点
+        to: 回退
+        condition: 用户不满意
+      - from: 探索性重写
+        to: 优化迭代
+        condition: 重写完成
+      - from: 探索性重写
+        to: 完成
+        condition: 用户不同意
+      - from: 回退
+        to: idle
+        condition: 回退完成
+      - from: 完成
+        to: idle
+        condition: 完成
+      - from: failure
+        to: idle
+        condition: 清理完成
+
+artifacts:
+  - SKILL.md
+  - skill.yaml
+  - workflows/state-machine.yaml
+  - evals/
+  - telemetry/
+  - <skill-name>-wiki/
+
+directories:
+  - scripts/
+  - references/
+  - assets/
+  - telemetry/
